@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>OmniSense Onboarding</title>
+  <link rel="stylesheet" href="onboarding.css">
+</head>
+<body>
+  <div class="card">
+    <img src="../assets/icons/icon-128.png" alt="OmniSense">
+    <div class="progress" id="progress">
+      <span class="active"></span><span></span><span></span><span></span>
+    </div>
+    <h1 id="obTitle" data-i18n="onboard.welcome_title">欢迎使用 OmniSense</h1>
+    <p id="obDesc" data-i18n="onboard.welcome_desc">所有 AI 都在你的浏览器本地运行，内容不会上传。</p>
+    <div class="actions" id="obActions">
+      <button class="primary" id="obNext" data-i18n="global.confirm">确定</button>
+    </div>
+  </div>
+  <script type="module" src="onboarding.js"></script>
+</body>
+</html>

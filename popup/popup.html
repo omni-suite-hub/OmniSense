@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>OmniSense</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="../assets/icons/icon-48.png" alt="OmniSense">
+    <div>
+      <h1>OmniSense</h1>
+      <p data-i18n="app.tooltip">本地 AI 浏览器助手</p>
+    </div>
+  </header>
+
+  <div class="model-status idle" id="modelStatus" data-i18n="global.local_only">全部在本地完成，内容不会上传</div>
+
+  <div class="search">
+    <input type="search" id="capsuleSearch" data-i18n="popup.capsule_search" placeholder="搜索记忆…">
+  </div>
+
+  <div class="grid">
+    <button id="btnSummary" data-i18n="popup.quick_summary">总结此页</button>
+    <button id="btnListen" data-i18n="popup.quick_listen">听网页</button>
+    <button id="btnPrivacy" data-i18n="popup.quick_privacy">隐私体检</button>
+    <button id="btnAdblock" data-i18n="popup.adblock_stats">广告拦截</button>
+    <button id="btnGroupTabs" style="grid-column: span 2;" data-i18n="popup.group_tabs">智能标签整理</button>
+  </div>
+
+  <div class="adblock-row">
+    <span data-i18n="adblock.title">广告拦截</span>
+    <span id="adblockStats">—</span>
+  </div>
+
+  <button class="open-panel primary" id="btnOpenPanel" data-i18n="popup.open_sidepanel">打开侧边栏</button>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

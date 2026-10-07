@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title data-i18n="settings.title">OmniSense 设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <h1 data-i18n="settings.title">OmniSense 设置</h1>
+  <p class="subtitle" data-i18n="global.local_only">全部在本地完成，内容不会上传</p>
+
+  <div class="section">
+    <h2 data-i18n="settings.general">通用</h2>
+    <div class="field">
+      <label data-i18n="settings.general.lang">语言</label>
+      <select id="optLang"></select>
+    </div>
+    <div class="field">
+      <label data-i18n="settings.general.default_page">侧边栏默认页</label>
+      <select id="optDefaultTab"></select>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 data-i18n="settings.capsule">时光胶囊</h2>
+    <div class="field">
+      <label data-i18n="settings.capsule.enable">开启本地记忆</label>
+      <input type="checkbox" id="optAutoRecord">
+    </div>
+    <div class="field">
+      <label data-i18n="settings.capsule.retention">保留时长</label>
+      <select id="optRetention"></select>
+    </div>
+    <button class="danger" id="optClearCapsule" data-i18n="settings.capsule.clear">清除全部本地记忆</button>
+  </div>
+
+  <div class="section">
+    <h2 data-i18n="settings.model">模型</h2>
+    <div class="field">
+      <label id="optModelStatus" data-i18n="settings.model.status" data-i18n-status="未下载">状态：未下载</label>
+    </div>
+    <div class="field">
+      <label data-i18n="settings.model.grade">模型档位</label>
+      <select id="optModelGrade"></select>
+    </div>
+    <div class="model-actions">
+      <button class="primary" id="optDownloadModel" data-i18n="settings.model.download">下载本地模型</button>
+      <button id="optRemoveModel" data-i18n="settings.model.remove">移除模型</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 data-i18n="settings.adblock">去广告</h2>
+    <div class="field">
+      <label data-i18n="settings.adblock.enable">广告拦截</label>
+      <input type="checkbox" id="optAdblock">
+    </div>
+    <div class="field">
+      <label data-i18n="settings.adblock.subscription">订阅</label>
+      <span data-i18n="adblock.subscription_short">EasyList（中文）</span>
+    </div>
+    <button id="optUpdateRules" data-i18n="settings.adblock.update">检查更新</button>
+  </div>
+
+  <div class="section">
+    <h2 data-i18n="settings.about">关于</h2>
+    <p data-i18n="settings.about.version" data-i18n-v="0.1.0">版本 0.1.0</p>
+    <p data-i18n="settings.about.local">所有处理均在本地完成，我们看不到你的任何内容。</p>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

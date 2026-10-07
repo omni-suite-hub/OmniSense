@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>OmniSense</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div id="header">
+    <div class="brand">
+      <img src="../assets/icons/icon-48.png" alt="OmniSense">
+      <h1>OmniSense</h1>
+    </div>
+    <div class="model-status idle" id="modelStatus">—</div>
+    <nav id="tabs">
+      <button class="active" data-tab="capsule" data-i18n="capsule.title">时光胶囊</button>
+      <button data-tab="ask" data-i18n="ask.title">本页问答</button>
+      <button data-tab="tabgroup" data-i18n="tabgroup.title">标签收纳</button>
+      <button data-tab="summary" data-i18n="summary.title">文章总结</button>
+      <button data-tab="listen" data-i18n="listen.title">听网页</button>
+      <button data-tab="writing" data-i18n="writing.title">写作助手</button>
+      <button data-tab="tone" data-i18n="tone.title">语气魔改</button>
+      <button data-tab="roast" data-i18n="roast.title">毒舌点评</button>
+      <button data-tab="privacy" data-i18n="privacy.title">隐私体检</button>
+      <button data-tab="adblock" data-i18n="adblock.title">去广告</button>
+    </nav>
+  </div>
+
+  <div id="main">
+    <!-- 时光胶囊 -->
+    <section class="panel active" data-panel="capsule">
+      <h2 data-i18n="capsule.title">时光胶囊</h2>
+      <p class="desc" data-i18n="capsule.subtitle">在本机搜索你看过的内容，数据不出浏览器。</p>
+
+      <!-- The explicit way in. Before this existed there was no user-facing
+           action that could put anything into the capsule at all, so the empty
+           state was permanent and looked like a bug. -->
+      <div class="card capsule-bar">
+        <div id="capsuleStats">—</div>
+        <button class="primary" id="capsuleCaptureBtn" data-i18n="capsule.capture">收录本页</button>
+      </div>
+      <div class="desc" id="capsuleCaptureNote" style="display:none;"></div>
+
+      <!-- 专属早报电台 (Daily Morning Briefing Radio Card) -->
+      <div id="briefingRadioCard" class="card briefing-radio-card" style="margin-bottom:12px;">
+        <div class="briefing-radio-header">
+          <div class="briefing-radio-branding">
+            <span class="briefing-radio-icon">📻</span>
+            <div style="min-width:0;">
+              <div class="briefing-radio-title" data-i18n="briefing.radio_title">OmniSense 专属早报电台</div>
+              <div class="briefing-radio-subtitle" data-i18n="briefing.radio_desc">基于您最近收录的知识记忆，生成专属晨间口语广播</div>
+            </div>
+          </div>
+          <button class="primary briefing-generate-btn" id="briefingGenerateBtn" data-i18n="briefing.generate_btn">📻 生成今日早报</button>
+        </div>
+
+        <div id="briefingRadioStatus" class="desc" style="display:none; margin-top:8px;"></div>
+
+        <!-- 播放器与文稿区域 -->
+        <div id="briefingPlayerArea" style="display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span id="briefingDateBadge" class="briefing-date-badge">—</span>
+              <span id="briefingCountBadge" class="briefing-count-badge"></span>
+            </div>
+            <div id="briefingWaveBars" class="tts-wave-bar" style="display:none;">
+              <span class="bar bar-1"></span>
+              <span class="bar bar-2"></span>
+              <span class="bar bar-3"></span>
+              <span class="bar bar-4"></span>
+            </div>
+          </div>
+          <div class="controls" style="margin-bottom:8px;">
+            <button class="primary" id="briefingPlayBtn" data-i18n="briefing.play">播放早报</button>
+            <button id="briefingPauseBtn" data-i18n="briefing.pause" style="display:none;">暂停</button>
+            <button id="briefingStopBtn" data-i18n="briefing.stop" style="display:none;">停止</button>
+            <button id="briefingViewScriptBtn" data-i18n="briefing.view_script">查看文稿</button>
+          </div>
+          <div id="briefingScriptBox" class="result-box briefing-script-box" style="display:none; font-size:12px; line-height:1.6; max-height:220px; overflow-y:auto;"></div>
+        </div>
+      </div>
+
+      <div id="capsuleRelated" class="card" style="display:none; margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <span style="font-weight:600;font-size:12.5px;color:var(--text);" data-i18n="capsule.related_title">本页关联历史记忆</span>
+          <span id="capsuleRelatedBadge" style="font-size:11px;color:var(--accent);font-weight:600;"></span>
+        </div>
+        <div id="capsuleRelatedList"></div>
+      </div>
+
+      <!-- 视图切换：列表 / 知识星图 -->
+      <div class="capsule-view-tabs" style="display:flex; gap:6px; margin-bottom:10px;">
+        <button id="capsuleViewListBtn" class="capsule-view-btn active" data-i18n="capsule.view_list">📋 记忆列表</button>
+        <button id="capsuleViewGraphBtn" class="capsule-view-btn" data-i18n="capsule.view_graph">🗺️ 知识星图</button>
+      </div>
+
+      <!-- 知识星图容器 -->
+      <div id="capsuleGraphContainer" class="card capsule-graph-card" style="display:none; margin-bottom:12px; position:relative; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <div style="font-weight:600; font-size:12px; color:var(--text); display:flex; align-items:center; gap:6px;">
+            <span data-i18n="capsule.graph_title">本地知识星图网络</span>
+            <span id="capsuleGraphStats" class="badge" style="font-size:10px; padding:1px 6px;">0</span>
+          </div>
+          <div style="display:flex; gap:4px;">
+            <button id="capsuleGraphResetBtn" class="ghost" style="padding:2px 6px; font-size:11px;" title="重置视角" data-i18n="capsule.graph_reset">🔄 重置</button>
+          </div>
+        </div>
+        <div style="position:relative; width:100%; height:260px; background:radial-gradient(ellipse at center, rgba(16,185,129,0.06) 0%, rgba(15,23,42,0.6) 100%); border-radius:8px; border:1px solid var(--border);">
+          <canvas id="capsuleGraphCanvas" style="width:100%; height:100%; display:block; cursor:grab;"></canvas>
+          <div id="capsuleGraphTooltip" class="capsule-graph-tooltip" style="display:none;"></div>
+        </div>
+        <div id="capsuleGraphLegend" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; font-size:10px; color:var(--text-muted);">
+          <span data-i18n="capsule.graph_tip">💡 拖拽节点探索关联 · 点击直接打开网页</span>
+        </div>
+      </div>
+
+      <!-- Enter searches; an empty box plus Enter, or the button, LISTS everything.
+           Before the button existed there was no way to see what had been stored:
+           the panel could say "本地已收录 4 段记忆" and offer no way to find out
+           what those four were. -->
+      <div class="search search-row">
+        <input type="search" id="capsuleInput" data-i18n="capsule.placeholder" placeholder="搜索你记忆里的网页…">
+        <button id="capsuleBrowseBtn" data-i18n="capsule.browse">全部收录</button>
+      </div>
+      <div class="desc" id="capsuleBrowseNote" style="display:none;"></div>
+      <div id="capsuleResults"></div>
+      <div id="capsuleEmpty" class="empty-state">
+        <span id="capsuleEmptyText" data-i18n="capsule.empty">还没有本地记忆。</span>
+        <button id="capsuleRetry" data-i18n="capsule.retry">重试</button>
+      </div>
+    </section>
+
+    <!-- 本页问答 -->
+    <section class="panel" data-panel="ask">
+      <h2 data-i18n="ask.title">本页问答</h2>
+      <div id="askStatus" class="desc" data-i18n="reader.reading">正在读取本页…</div>
+      <div class="chips" id="askPresets">
+        <button class="chip" data-q="文章的核心论点和主要结论是什么？" data-i18n="ask.preset_summary">💡 核心论点与结论</button>
+        <button class="chip" data-q="文中指出了哪些风险、局限或争议点？" data-i18n="ask.preset_risks">⚠️ 风险与争议点</button>
+        <button class="chip" data-q="文章提到了哪些关键数据、事实或实验结果？" data-i18n="ask.preset_data">📊 关键数据与事实</button>
+      </div>
+      <textarea id="askInput" data-i18n="ask.placeholder" placeholder="输入关于本页的任何问题，例如：核心论点是什么？有哪些优缺点？…"></textarea>
+      <button class="primary" id="askBtn" data-i18n="ask.button">提问</button>
+      <div id="askOutput" class="result-box" style="margin-top:12px; display:none;"></div>
+      <div class="row-actions" id="askActions" style="display:none;">
+        <button id="askCopy" data-i18n="global.copy">复制</button>
+        <button id="askClear" data-i18n="ask.clear">清空</button>
+      </div>
+    </section>
+
+    <!-- 标签收纳 -->
+    <section class="panel" data-panel="tabgroup">
+      <h2 data-i18n="tabgroup.title">标签收纳</h2>
+      <p class="desc" data-i18n="tabgroup.subtitle">本地 AI 语义聚类，自动整理打开的标签页为原生色彩分组。</p>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <span id="tabGroupStats" style="font-weight:600;font-size:13px;color:var(--text);">—</span>
+          <button id="tabGroupRefresh" data-i18n="global.refresh" style="padding:4px 10px;font-size:11.5px;">刷新</button>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="primary" id="tabGroupClusterBtn" style="flex:1;" data-i18n="tabgroup.auto_group">🤖 AI 语义智能分组</button>
+          <button id="tabGroupDedupeBtn" data-i18n="tabgroup.dedupe">🧹 一键去重</button>
+        </div>
+      </div>
+      <div id="tabGroupList" style="margin-top:14px;"></div>
+    </section>
+
+    <!-- 语气魔改 -->
+    <section class="panel" data-panel="tone">
+      <h2 data-i18n="tone.title">语气魔改</h2>
+      <p class="desc" data-i18n="tone.footer">全部在本地完成，文字不会离开你的浏览器。</p>
+      <textarea id="toneInput" data-i18n="tone.placeholder" placeholder="粘贴或选中要改写的文字…"></textarea>
+      <div class="chips" id="toneStyles"></div>
+      <button class="primary" id="toneBtn" data-i18n="tone.button">开始改写</button>
+      <div id="toneOutput" class="result-box" style="margin-top:12px; display:none;"></div>
+      <div class="row-actions" id="toneActions" style="display:none;">
+        <button id="toneCopy" data-i18n="tone.copy">复制</button>
+        <button id="toneAgain" data-i18n="tone.again">再改一版</button>
+        <button id="toneInsert" data-i18n="tone.insert">插入原处</button>
+      </div>
+    </section>
+
+    <!-- 毒舌点评 -->
+    <section class="panel" data-panel="roast">
+      <h2 data-i18n="roast.title">毒舌点评</h2>
+      <p class="desc" data-i18n="roast.disclaimer">纯属娱乐，请勿当真，也别用来伤人。</p>
+      <textarea id="roastInput" data-i18n="roast.placeholder" placeholder="贴上想被吐槽的内容…"></textarea>
+      <button class="primary" id="roastBtn" data-i18n="roast.button">生成毒舌</button>
+      <div id="roastOutput" class="result-box" style="margin-top:12px; display:none;"></div>
+      <div class="row-actions" id="roastActions" style="display:none;">
+        <button id="roastCopy" data-i18n="roast.copy">复制</button>
+        <button id="roastAgain" data-i18n="roast.again">再来一条</button>
+      </div>
+    </section>
+
+    <!-- 网页雷达与隐私审查 -->
+    <section class="panel" data-panel="privacy">
+      <h2 data-i18n="privacy.title">网页隐私体检</h2>
+      <div class="chips" id="privacySubTabs" style="margin-bottom:12px;">
+        <button class="chip active" data-subtab="radar" data-i18n="privacy.tab_radar">🛡️ 套路雷达</button>
+        <button class="chip" data-subtab="agreement" data-i18n="privacy.tab_agreement">📜 协议审查</button>
+        <button class="chip" data-subtab="trackers" data-i18n="privacy.tab_trackers">🔍 追踪体检</button>
+      </div>
+
+      <!-- 子面板 1：套路雷达 -->
+      <div id="subpanelRadar">
+        <button class="primary" id="radarScanBtn" data-i18n="radar.scan_btn">全页套路扫描</button>
+        <div id="radarReport" style="margin-top:14px; display:none;">
+          <!-- 倒计时卡片 -->
+          <div class="card radar-card" id="radarCountdownCard">
+            <div class="radar-card-header">
+              <span class="radar-card-title" data-i18n="radar.countdown_title">虚假营销倒计时</span>
+              <label class="toggle-pill" id="radarBadgeToggleLabel" style="display:none; font-size:11.5px; cursor:pointer;">
+                <input type="checkbox" id="radarBadgeToggle" checked>
+                <span data-i18n="radar.countdown_badge_toggle">在页面标出倒计时</span>
+              </label>
+            </div>
+            <div id="radarCountdownStatus" class="desc" data-i18n="radar.countdown_none">未发现虚假倒计时</div>
+            <div id="radarCountdownList" class="radar-item-list"></div>
+          </div>
+
+          <!-- 遮罩与Cookie弹窗卡片 -->
+          <div class="card radar-card" id="radarOverlayCard" style="margin-top:10px;">
+            <div class="radar-card-header">
+              <span class="radar-card-title" data-i18n="radar.overlay_title">阻断性遮罩与弹窗</span>
+              <button class="primary" id="radarCrushBtn" data-i18n="radar.crush_btn" style="padding:4px 10px; font-size:11.5px; display:none;">💥 一键粉碎遮罩并恢复滚动</button>
+            </div>
+            <div id="radarOverlayStatus" class="desc" data-i18n="radar.overlay_none">未发现阻断性遮罩</div>
+            <div id="radarCrushFeedback" class="desc" style="display:none; color:var(--accent); font-weight:600; margin-top:6px;"></div>
+          </div>
+
+          <!-- 默认勾选推广项卡片 -->
+          <div class="card radar-card" id="radarCheckboxCard" style="margin-top:10px;">
+            <div class="radar-card-header">
+              <span class="radar-card-title" data-i18n="radar.checkbox_title">诱导性默认勾选</span>
+            </div>
+            <div id="radarCheckboxStatus" class="desc" data-i18n="radar.checkbox_none">未发现默认勾选陷阱</div>
+            <div id="radarCheckboxList" class="radar-item-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 子面板 2：协议审查 -->
+      <div id="subpanelAgreement" style="display:none;">
+        <p class="desc" data-i18n="agreement.subtitle">本地秒级排查自动续费、版权让渡、隐私外泄等 5 大风险条款。</p>
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <button class="primary" id="agreementScanCurrentBtn" style="flex:1;" data-i18n="agreement.scan_current">审查当前页协议</button>
+          <button id="agreementToggleCustomBtn" data-i18n="agreement.custom_input_toggle" style="font-size:11.5px;">粘贴文本</button>
+        </div>
+        <div id="agreementCustomBox" style="display:none; margin-bottom:10px;">
+          <textarea id="agreementCustomInput" data-i18n="agreement.placeholder" placeholder="在此粘贴用户协议、服务条款或隐私政策文本…"></textarea>
+          <button class="primary" id="agreementScanCustomBtn" style="margin-top:6px;" data-i18n="agreement.scan_custom_btn">审查粘贴内容</button>
+        </div>
+        <div id="agreementStatus" class="desc" style="display:none;"></div>
+        <div id="agreementReport" style="margin-top:12px; display:none;">
+          <div id="agreementRiskBadge" class="risk-badge"></div>
+          <div id="agreementFindingsList" class="radar-item-list" style="margin-top:10px;"></div>
+          <div class="card" id="agreementAiCard" style="margin-top:12px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <span style="font-weight:600; font-size:12.5px;" data-i18n="agreement.ai_deep_review">🤖 AI 深度法务审查意见</span>
+              <button id="agreementAiTriggerBtn" style="padding:3px 8px; font-size:11px;" data-i18n="agreement.ai_run_btn">大模型深度详审</button>
+            </div>
+            <div id="agreementAiOutput" class="result-box" style="display:none; font-size:12px; line-height:1.5;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 子面板 3：追踪体检 -->
+      <div id="subpanelTrackers" style="display:none;">
+        <button class="primary" id="privacyBtn" data-i18n="privacy.button">给本页做个体检</button>
+        <div id="privacyReport" style="margin-top:14px;"></div>
+      </div>
+    </section>
+
+    <!-- 去广告 -->
+    <section class="panel" data-panel="adblock">
+      <h2 data-i18n="adblock.title">广告拦截</h2>
+      <div class="card">
+        <div class="stats" id="adblockStats">—</div>
+        <div class="desc" data-i18n="adblock.stats" data-i18n-requests="0" data-i18n-elements="0">本次已拦截：0 个请求 · 隐藏 0 个元素</div>
+      </div>
+      <div class="card">
+        <label style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span data-i18n="adblock.toggle">广告拦截</span>
+          <input type="checkbox" id="adblockToggle" checked>
+        </label>
+      </div>
+      <button id="allowlistBtn" data-i18n="adblock.false_positive">这片内容被误拦？点此允许本页广告。</button>
+    </section>
+
+    <!-- 写作助手 -->
+    <section class="panel" data-panel="writing">
+      <h2 data-i18n="writing.title">写作助手</h2>
+      <div class="chips" id="writingModes">
+        <button class="chip active" data-wmode="blank" data-i18n="writing.mode_blank">空白起草</button>
+        <button class="chip" data-wmode="ref" data-i18n="writing.mode_ref">参考当前页</button>
+      </div>
+      <div id="writingBlank">
+        <input type="text" id="writingTopic" data-i18n="writing.topic_placeholder" placeholder="想写什么？">
+        <div style="display:flex;gap:8px;margin:10px 0;">
+          <select id="writingLength"></select>
+          <select id="writingTone"></select>
+          <select id="writingLang"></select>
+        </div>
+      </div>
+      <div id="writingRef" style="display:none;">
+        <div id="writingRefStatus" class="desc" data-i18n="reader.reading">正在读取本页…</div>
+        <input type="text" id="writingInstruction" data-i18n="writing.instruction_placeholder" placeholder="想基于它写什么？">
+      </div>
+      <button class="primary" id="writingBtn" data-i18n="writing.button">开始写</button>
+      <div id="writingOutput" class="result-box" style="margin-top:12px; display:none;"></div>
+      <div class="row-actions" id="writingActions" style="display:none;">
+        <button id="writingCopy" data-i18n="writing.copy">复制全文</button>
+        <button id="writingExport" data-i18n="writing.export">导出 Markdown</button>
+        <button id="writingContinue" data-i18n="writing.continue">接着写</button>
+      </div>
+      <div class="desc" id="writingAttribution" style="display:none;" data-i18n="writing.attribution">由本地 Qwen 模型生成。</div>
+    </section>
+
+    <!-- 文章总结 -->
+    <section class="panel" data-panel="summary">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <h2 data-i18n="summary.title" style="margin:0;">文章总结</h2>
+        <button id="summaryZenBtn" class="zen-trigger-btn" data-i18n="zen.open_btn">📖 禅阅读模式</button>
+      </div>
+
+      <div class="chips" id="summaryModeTabs" style="margin-bottom:10px;">
+        <button class="chip active" data-mode="summary" data-i18n="summary.mode_summary">📑 要点总结</button>
+        <button class="chip" data-mode="bias" data-i18n="summary.mode_bias">⚖️ 观点对抗天平</button>
+      </div>
+
+      <div id="summaryModeNormal">
+        <div id="summaryStatus" class="desc" data-i18n="summary.idle">点下面的按钮，总结当前页正文。</div>
+        <div class="chips" id="summaryLevels"></div>
+        <button class="primary" id="summaryBtn" data-i18n="summary.title">文章总结</button>
+        <div id="summaryOutput" class="result-box" style="margin-top:12px; display:none;"></div>
+        <div class="row-actions" id="summaryActions" style="display:none;">
+          <button id="summaryCopy" data-i18n="summary.copy">复制</button>
+          <button id="summaryListen" data-i18n="summary.listen">朗读这段</button>
+          <button id="summaryWrite" data-i18n="summary.write">基于它写作</button>
+        </div>
+      </div>
+
+      <!-- 观点对抗与立场天平容器 -->
+      <div id="summaryModeBias" style="display:none;">
+        <div id="biasStatus" class="desc" data-i18n="bias.idle">对文章进行严苛审视，透视隐性成本与反方论据。</div>
+        <button class="primary" id="biasAnalyzeBtn" data-i18n="bias.analyze_btn">⚖️ 启动观点对抗与立场分析</button>
+
+        <div id="biasResultContainer" style="display:none; margin-top:12px;">
+          <!-- 视觉立场天平分值仪 -->
+          <div class="card bias-meter-card" style="margin-bottom:12px; padding:12px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <span style="font-weight:600; font-size:12px;" data-i18n="bias.meter_title">立场客观度天平</span>
+              <span id="biasBadge" class="badge" style="font-size:11px;" data-i18n="bias.badge_objective">客观严谨</span>
+            </div>
+            <div class="bias-meter-bar" style="height:10px; border-radius:5px; background:rgba(255,255,255,0.08); overflow:hidden; display:flex; margin-bottom:6px;">
+              <div id="biasFactBar" style="width:75%; background:linear-gradient(90deg, #10b981, #06b6d4); transition:width 0.4s ease;"></div>
+              <div id="biasEmotionBar" style="width:25%; background:linear-gradient(90deg, #f59e0b, #ef4444); transition:width 0.4s ease;"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-muted);">
+              <span id="biasFactLabel" data-i18n="bias.fact_label" data-i18n-percent="75">客观事实: 75%</span>
+              <span id="biasEmotionLabel" data-i18n="bias.emotion_label" data-i18n-percent="25">主观/情绪: 25%</span>
+            </div>
+          </div>
+
+          <div id="biasOutput" class="result-box" style="line-height:1.6; font-size:12px; margin-bottom:8px;"></div>
+          <div class="row-actions" id="biasActions">
+            <button id="biasCopyBtn" data-i18n="global.copy">复制</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 听网页 -->
+    <section class="panel" data-panel="listen">
+      <h2 data-i18n="listen.title">听网页</h2>
+      <div id="listenStatus" class="desc" data-i18n="reader.reading">正在读取本页…</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin:10px 0 12px;">
+        <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span data-i18n="listen.podcast_mode">先改成口语播客稿</span>
+          <input type="checkbox" id="listenPodcast">
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span data-i18n="listen.sync_highlight">音画同步跟随与滚动</span>
+          <input type="checkbox" id="ttsSyncHighlight" checked>
+        </label>
+      </div>
+      <div id="ttsPlayer">
+        <div id="ttsLiveCard" class="tts-live-card" style="display:none;">
+          <div class="tts-wave-bar">
+            <span class="bar bar-1"></span>
+            <span class="bar bar-2"></span>
+            <span class="bar bar-3"></span>
+            <span class="bar bar-4"></span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div id="ttsLiveBadge" class="tts-live-badge" data-i18n="listen.reading_now">正在朗读</div>
+            <div id="ttsLiveSentence" class="tts-live-sentence">—</div>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="ttsPrev" data-i18n="listen.prev" title="上一句" style="padding:7px 10px;">⏮</button>
+          <button id="ttsPlay" data-i18n="listen.play">播放</button>
+          <button id="ttsPause" data-i18n="listen.pause">暂停</button>
+          <button id="ttsNext" data-i18n="listen.next" title="下一句" style="padding:7px 10px;">⏭</button>
+          <button id="ttsStop" data-i18n="listen.stop">停止</button>
+          <select id="ttsRate"></select>
+        </div>
+        <input type="range" id="ttsProgress" min="0" max="100" value="0">
+        <div class="desc" id="ttsNote" data-i18n="listen.voice_note">使用系统语音：按正文语言选音色，长文按句连续朗读。</div>
+      </div>
+
+      <!-- The rewritten podcast script gets its OWN element. It used to stream
+           into #listenStatus, the same line that reports what is being read,
+           which is how the panel could say 「没有可读的正文」 and 「正在朗读…」
+           at the same time. -->
+      <div id="listenScript" class="result-box" style="display:none;"></div>
+      <!-- Revealed by the shared stream helper when the rewrite finishes. Kept
+           bare (not `.row-actions`) because there are no buttons here, and an
+           empty flex row would just add space. -->
+      <div id="listenActions" style="display:none;"></div>
+    </section>
+  </div>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

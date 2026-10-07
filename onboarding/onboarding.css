@@ -1,0 +1,26 @@
+@import url('../shared/styles.css');
+
+body {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 24px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--surface-2);
+  border-radius: var(--radius);
+  padding: 32px;
+  max-width: 440px; width: 100%;
+  text-align: center;
+}
+.card img { width: 72px; height: 72px; margin-bottom: 16px; }
+.card h1 { margin: 0 0 10px; }
+.card p { color: var(--text-2); margin-bottom: 24px; }
+.actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.actions button { min-width: 120px; }
+.progress {
+  display: flex; justify-content: center; gap: 6px; margin-bottom: 20px;
+}
+.progress span {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--surface-3);
+}
+.progress span.active { background: var(--accent); }
