@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const require = createRequire('/Users/eden/.workbuddy/binaries/node/workspace/');
+const require = createRequire('./');
 const { Resvg } = require('@resvg/resvg-js');
 
 const here = pathToFileURL(process.cwd() + '/');
